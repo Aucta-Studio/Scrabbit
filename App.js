@@ -7,41 +7,14 @@ import {
   ViroTrackingStateConstants,
   ViroARSceneNavigator,
 } from '@viro-community/react-viro';
-import NavTab from './Navigators/BottomTabNavigation';
+import BottomTabNavigation from './Navigators/BottomTabNavigation';
+import HelloWorldSceneAR from './Screens/HelloWorldSceneAR';
 
-const HelloWorldSceneAR = () => {
-  const [text, setText] = useState('Initializing AR...');
-
-  function onInitialized(state, reason) {
-    console.log('guncelleme', state, reason);
-    if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      setText('Hello World!');
-    } else if (state === ViroTrackingStateConstants.TRACKING_UNAVAILABLE) {
-      // Handle loss of tracking
-    }
-  }
-
-  return (
-    <ViroARScene onTrackingUpdated={onInitialized}>
-      <ViroText
-        text={text}
-        scale={[0.5, 0.5, 0.5]}
-        position={[0, 0, -1]}
-        style={styles.helloWorldTextStyle}
-      />
-    </ViroARScene>
-  );
-};
+// const NavTab = BottomTabNavigation;
 
 export default () => {
   return (
-    <ViroARSceneNavigator
-      autofocus={true}
-      initialScene={{
-        scene: HelloWorldSceneAR,
-      }}
-      style={styles.f1}
-    />
+    <HelloWorldSceneAR />
   );
 };
 

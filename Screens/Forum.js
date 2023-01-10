@@ -3,6 +3,8 @@ import { View } from 'react-native';
 
 export default () => {
     return(
-            <Text>This is the camera page</Text>
+        <View>
+            <Text>This is the Forum page</Text>
+        </View>
     );
 }
