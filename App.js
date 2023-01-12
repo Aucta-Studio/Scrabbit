@@ -7,14 +7,13 @@ import {
   ViroTrackingStateConstants,
   ViroARSceneNavigator,
 } from '@viro-community/react-viro';
-import BottomTabNavigation from './Navigators/BottomTabNavigation';
 import HelloWorldSceneAR from './Screens/HelloWorldSceneAR';
-
-// const NavTab = BottomTabNavigation;
+import BottomTabNavigation from './Navigators/BottomTabNavigation';
+import Login from './Screens/Login';
 
 export default () => {
   return (
-    <HelloWorldSceneAR />
+    <Login />
   );
 };
 
