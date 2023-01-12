@@ -10,10 +10,11 @@ import {
 import HelloWorldSceneAR from './Screens/HelloWorldSceneAR';
 import BottomTabNavigation from './Navigators/BottomTabNavigation';
 import Login from './Screens/Login';
+import Register from './Screens/Register';
 
 export default () => {
   return (
-    <Login />
+    <Register />
   );
 };
 
