@@ -18,7 +18,7 @@ function MyTabs() {
         tabBarStyle:{backgroundColor: '#000',},
         tabBarShowLabel: false,
       }}
-      initialRouteName="Feed">
+      initialRouteName="Scrabbit">
       <Tab.Screen name="World" component={World} />
       <Tab.Screen name="Chat" component={Chat} />
       <Tab.Screen name="Scrabbit" component={Camera} />
