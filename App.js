@@ -14,7 +14,7 @@ import Register from './Screens/Register';
 
 export default () => {
   return (
-    <Register />
+    <BottomTabNavigation />
   );
 };
 

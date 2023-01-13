@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import { View, Text} from 'react-native';
+import { SafeAreaView, Text} from 'react-native';
 
 export default () => {
     return(
-        <View>
+        <SafeAreaView>
             <Text>This is the feed page</Text>
-        </View>
+        </SafeAreaView>
     );
 }

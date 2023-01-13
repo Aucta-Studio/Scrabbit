@@ -7,12 +7,18 @@ import World from '../Screens/World';
 import Feed from '../Screens/Feed';
 import Profile from '../Screens/Profile';
 import Camera from '../Screens/Camera';
+import { StyleSheet } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
   return (
-    <Tab.Navigator initialRouteName="Camera">
+    <Tab.Navigator
+      screenOptions={{headerShown: false,
+        tabBarStyle:{backgroundColor: '#000',},
+        tabBarShowLabel: false,
+      }}
+      initialRouteName="Camera">
       <Tab.Screen name="World" component={World} />
       <Tab.Screen name="Chat" component={Chat} />
       <Tab.Screen name="Scrabbit" component={Camera} />
@@ -29,3 +35,9 @@ export default () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  navtab:{
+    backgroundColor: '#000',
+  },
+});
