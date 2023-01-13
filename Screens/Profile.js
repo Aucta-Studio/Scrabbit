@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
-import { View, Text } from 'react-native';
+import { SafeAreaView, ScrollView, Text} from 'react-native';
 
 export default () => {
     return(
-        <View>
-            <Text>This is the profile page</Text>
-        </View>
+        <SafeAreaView className="bg-zinc-900 h-full">
+            <ScrollView>
+                <Text className="text-white">This is the profile page</Text>
+            </ScrollView>
+        </SafeAreaView>
     );
 }

@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Text } from 'react-native';
-import { View } from 'react-native';
+import { SafeAreaView, ScrollView, Text} from 'react-native';
 
 export default () => {
     return(
-        <View>
-            <Text>This is the Chat page</Text>
-        </View>
+        <SafeAreaView className="bg-zinc-900 h-full">
+            <ScrollView>
+                <Text className="text-white">This is the chat page</Text>
+            </ScrollView>
+        </SafeAreaView>
     );
 }
