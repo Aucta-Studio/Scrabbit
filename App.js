@@ -1,20 +1,20 @@
 import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
 import {
-  ViroARScene,
-  ViroText,
-  //ViroConstants,
-  ViroTrackingStateConstants,
-  ViroARSceneNavigator,
-} from '@viro-community/react-viro';
-import HelloWorldSceneAR from './Screens/HelloWorldSceneAR';
-import BottomTabNavigation from './Navigators/BottomTabNavigation';
+  SafeAreaView,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView
+} from 'react-native';
 import Login from './Screens/Login';
 import Register from './Screens/Register';
+import StackNavigator from './Navigators/StackNavigator';
 
 export default () => {
   return (
-    <BottomTabNavigation />
+    <StackNavigator/>
   );
 };
 

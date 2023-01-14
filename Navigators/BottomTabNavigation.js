@@ -30,9 +30,9 @@ function MyTabs() {
 
 export default () => {
   return (
-    <NavigationContainer>
+    // <NavigationContainer>
       <MyTabs />
-    </NavigationContainer>
+    // </NavigationContainer>
   );
 };
 
