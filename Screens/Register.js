@@ -21,7 +21,9 @@ export default () => {
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  function handleRegister() {}
+  function handleRegister() {
+    navigateToLogin();
+  }
 
   function navigateToLogin(){
     navigation.navigate('login');
