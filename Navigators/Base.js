@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import BottomTabNavigation from './BottomTabNavigation';
+import BottomTabNavigation from './NavBar';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 

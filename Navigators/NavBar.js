@@ -8,6 +8,7 @@ import Feed from '../Screens/Feed';
 import Profile from '../Screens/Profile';
 import Camera from '../Screens/Camera';
 import { StyleSheet } from 'react-native';
+import ProfileStack from './ProfileStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +24,7 @@ function MyTabs() {
       <Tab.Screen name="Chat" component={Chat} />
       <Tab.Screen name="Scrabbit" component={Camera} />
       <Tab.Screen name="Feed" component={Feed} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="ProfileStack" component={ProfileStack} />
     </Tab.Navigator>
   );
 }
