@@ -171,6 +171,7 @@ const HelloWorldSceneAR = () => {
 
   console.log('CompassHeading: ', heading);
   console.log('Location: ', location);
+  console.log('Platform: ', Platform.OS);
   // console.log(posts);
 
   function onInitialized(state, reason) {
