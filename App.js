@@ -9,6 +9,8 @@ import {
   ScrollView,
   Modal,
   Alert,
+  Platform,
+  ToastAndroid,
 } from 'react-native';
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {
@@ -32,6 +34,8 @@ import {
   ViroFlexView,
 } from '@viro-community/react-viro';
 import carrot from './assets/images/carrot_node.png';
+import Geolocation from '@react-native-community/geolocation';
+import CompassHeading from 'react-native-compass-heading';
 
 // reference https://github.com/ViroCommunity/geoar/blob/master/App.js#LL28C19-L28C19
 const distanceBetweenPoints = (p1, p2) => {
@@ -67,6 +71,7 @@ const HelloWorldSceneAR = () => {
   const [idList, setList] = useState(null);
   const [posts, setPosts] = useState(null);
   const [location, setlocation] = useState(null);
+  const [heading, setHeading] = useState(null);
   const loginEmail = 'a.abdelfattah2004@gmail.com';
   const firstName = 'Ahmed';
   const loginPass = 'Temp123';
@@ -102,8 +107,50 @@ const HelloWorldSceneAR = () => {
     return array;
   };
 
+  // https://github.com/ViroCommunity/geoar/blob/master/App.js#L102
+  const getLocation = () => {
+    const geoSuccess = result => {
+      setlocation(result.coords);
+      console.log(location);
+    };
+    Geolocation.watchPosition(geoSuccess, error => {}, {distanceFilter: 10});
+  };
+
+  const getHeading = () => {
+    const headingSuccess = (heading, accuracy) => {
+      setHeading(heading);
+      // console.log(heading);
+    };
+    CompassHeading.start(3, headingSuccess);
+  };
+
+  // https://github.com/ViroCommunity/geoar/blob/master/App.js#L124
+  transformGpsToAR = (lat, lng) => {
+    const isAndroid = Platform.OS === 'android';
+    const latObj = lat;
+    const longObj = lng;
+    const latMobile = location.latitude;
+    const longMobile = location.longitude;
+
+    const deviceObjPoint = latLongToMerc(latObj, longObj);
+    const mobilePoint = latLongToMerc(latMobile, longMobile);
+    const objDeltaY = deviceObjPoint.y - mobilePoint.y;
+    const objDeltaX = deviceObjPoint.x - mobilePoint.x;
+
+    if (isAndroid) {
+      let degree = heading.heading;
+      let angleRadian = (degree * Math.PI) / 180;
+      let newObjX =
+        objDeltaX * Math.cos(angleRadian) - objDeltaY * Math.sin(angleRadian);
+      let newObjY =
+        objDeltaX * Math.sin(angleRadian) + objDeltaY * Math.cos(angleRadian);
+      return {x: newObjX, z: -newObjY};
+    }
+
+    return {x: objDeltaX, z: -objDeltaY};
+  };
+
   // Alert.alert(`Hello ${firstName}`, `You will be Logged in shortly`);
-  // console.log(firstName);
 
   useEffect(() => {
     Alert.alert(`Hello ${firstName}`, `You will be Logged in shortly`);
@@ -118,8 +165,12 @@ const HelloWorldSceneAR = () => {
       .catch(error => {
         Alert.alert('Unsuccessful Login');
       });
+    getLocation();
+    getHeading();
   }, []);
 
+  console.log('CompassHeading: ', heading);
+  console.log('Location: ', location);
   // console.log(posts);
 
   function onInitialized(state, reason) {
@@ -156,9 +207,12 @@ const HelloWorldSceneAR = () => {
           {/* <ViroImage width={1} height={1} source={carrot} position={[0,-1.5,0]}/> */}
           <ViroButton
             width={1}
-            height={1}
+            height={0.5}
             source={carrot}
             position={[0, -1.5, -2]}
+            onClick={() => {
+              console.log('CLICKCKCKCKCKK');
+            }}
           />
         </ViroFlexView>
       </ViroNode>
