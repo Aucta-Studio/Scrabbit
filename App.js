@@ -194,6 +194,16 @@ const HelloWorldSceneAR = () => {
     location && idList && !posts && getPosts(idList);
   }
 
+  function handleCollect(docID, author, currList){
+    if(uid == author){
+      Alert.alert('You are the author of this node');
+    }
+    else 
+    if(currList.includes(uid)){
+      Alert.alert('You have already collected this node');
+    }
+  }
+
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
@@ -261,6 +271,7 @@ const HelloWorldSceneAR = () => {
                     position={[0, 1, 0]}
                     onClick={() => {
                       console.log('CLICKCKCKCKCKK');
+                      handleCollect(post.id, post.author, post.Collected);
                     }}
                   />
                 </ViroFlexView>
