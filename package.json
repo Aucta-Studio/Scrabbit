@@ -20,6 +20,7 @@
     "idb": "^7.1.1",
     "nativewind": "^2.0.11",
     "react": "17.0.2",
+    "react-firebase-hooks": "^5.1.1",
     "react-native": "0.65.3",
     "react-native-compass-heading": "^1.4.2",
     "react-native-gesture-handler": "^2.9.0",

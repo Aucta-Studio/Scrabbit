@@ -20,6 +20,8 @@ import {
   query,
   where,
   orderBy,
+  doc,
+  getDoc,
 } from 'firebase/firestore';
 import {myFireBase, auth, db} from './fireBaseConfig';
 import {
@@ -36,9 +38,12 @@ import {
 import carrot from './assets/images/carrot_node.png';
 import Geolocation from '@react-native-community/geolocation';
 import CompassHeading from 'react-native-compass-heading';
+import {useDocument} from 'react-firebase-hooks/firestore';
 
 // reference https://github.com/ViroCommunity/geoar/blob/master/App.js#LL28C19-L28C19
 const distanceBetweenPoints = (p1, p2) => {
+  console.log('POINT 1', p1);
+  console.log('POINT 2', p2);
   if (!p1 || !p2) {
     return 0;
   }
@@ -53,6 +58,7 @@ const distanceBetweenPoints = (p1, p2) => {
       Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
+  console.log('DISTANCE', d);
   return d;
 };
 // From: https://gist.github.com/scaraveos/5409402
@@ -72,6 +78,8 @@ const HelloWorldSceneAR = () => {
   const [posts, setPosts] = useState(null);
   const [location, setlocation] = useState(null);
   const [heading, setHeading] = useState(null);
+  const [ready, setReady] = useState(false);
+  // const [value, loading, error] = useDocument(doc(db, "Profiles", `${uid}`));
   const loginEmail = 'a.abdelfattah2004@gmail.com';
   const firstName = 'Ahmed';
   const loginPass = 'Temp123';
@@ -89,21 +97,29 @@ const HelloWorldSceneAR = () => {
     array.push(`${id}`);
     // console.log(array);
     setList(array);
-    getPosts(array);
+    // getPosts(array);
     return array;
   };
 
   const getPosts = async arrin => {
     // let list = await getList(id);
     const qp = query(PostStore, where('author', 'in', arrin));
+    // const user = await getDoc(doc(db, "Profiles", `${uid}`));
     const array = [];
     const temp = await getDocs(qp);
-    temp.forEach(doc => {
+    temp.forEach(async docp => {
       // console.log(doc.id, '=>', doc.data());
-      array.push({id: doc.id, ...doc.data()});
+      const user = await getDoc(doc(db, 'Profiles', `${docp.data().author}`));
+      array.push({
+        id: docp.id,
+        distance: distanceBetweenPoints(location, docp.data().location),
+        username: user.data().UserName,
+        ...docp.data(),
+      });
     });
-    // console.log(array);
+    console.log(array);
     setPosts(array);
+    setReady(true);
     return array;
   };
 
@@ -137,7 +153,7 @@ const HelloWorldSceneAR = () => {
     const objDeltaY = deviceObjPoint.y - mobilePoint.y;
     const objDeltaX = deviceObjPoint.x - mobilePoint.x;
 
-    if (isAndroid) {
+    if (heading) {
       let degree = heading.heading;
       let angleRadian = (degree * Math.PI) / 180;
       let newObjX =
@@ -154,25 +170,29 @@ const HelloWorldSceneAR = () => {
 
   useEffect(() => {
     Alert.alert(`Hello ${firstName}`, `You will be Logged in shortly`);
+    getLocation();
+    getHeading();
     signInWithEmailAndPassword(auth, loginEmail, loginPass)
       .then(userCredential => {
         const user = userCredential.user.uid;
         console.log('Logged in');
-        console.log(user);
+        // console.log(user);
         setuid(user);
         getList(user);
       })
       .catch(error => {
         Alert.alert('Unsuccessful Login');
       });
-    getLocation();
-    getHeading();
   }, []);
 
-  console.log('CompassHeading: ', heading);
-  console.log('Location: ', location);
-  console.log('Platform: ', Platform.OS);
+  // console.log('CompassHeading: ', heading);
+  // console.log('Location: ', location);
+  // console.log('Platform: ', Platform.OS);
   // console.log(posts);
+
+  {
+    location && idList && !posts && getPosts(idList);
+  }
 
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
@@ -185,38 +205,96 @@ const HelloWorldSceneAR = () => {
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
-      <ViroText
-        text={text}
-        scale={[0.5, 0.5, 0.5]}
-        position={[0, 0, -1]}
-        style={styles.helloWorldTextStyle}
-      />
-      <ViroNode scale={[1, 1, 1]} position={[1, 0, -1]}>
-        <ViroFlexView style={{alignItems: 'center', justifyContent: 'center'}}>
+      {!ready && (
+        <ViroText
+          text={'getting posts'}
+          scale={[0.5, 0.5, 0.5]}
+          position={[0, 0, -1]}
+          style={styles.helloWorldTextStyle}
+        />
+      )}
+      {ready && (
+        <>
           <ViroText
-            width={4}
-            height={0.5}
-            text={'Le Louvre'}
+            text={text}
+            scale={[0.5, 0.5, 0.5]}
+            position={[0, 0, -1]}
             style={styles.helloWorldTextStyle}
           />
-          <ViroText
-            width={4}
-            height={0.5}
-            text={'by 4aas_h'}
-            style={styles.helloWorldTextStyle}
-          />
-          {/* <ViroImage width={1} height={1} source={carrot} position={[0,-1.5,0]}/> */}
-          <ViroButton
-            width={1}
-            height={0.5}
-            source={carrot}
-            position={[0, -1.5, -2]}
-            onClick={() => {
-              console.log('CLICKCKCKCKCKK');
-            }}
-          />
-        </ViroFlexView>
-      </ViroNode>
+          {posts?.map(post => {
+            const coords = transformGpsToAR(
+              post.location.latitude,
+              post.location.longitude,
+            );
+            const scale = Math.abs(Math.round(coords.z / 15));
+            const dist = post.distance;
+            return (
+              <ViroNode
+                key={post.id}
+                scale={[scale, scale, scale]}
+                position={[coords.x, 0, coords.z]}>
+                <ViroFlexView
+                  style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <ViroText
+                    width={4}
+                    height={0.5}
+                    text={post.Title}
+                    style={styles.helloWorldTextStyle}
+                  />
+                  <ViroText
+                    width={4}
+                    height={0.5}
+                    text={`by ${post.username}`}
+                    style={styles.helloWorldTextStyle}
+                  />
+                  <ViroText
+                    width={4}
+                    height={0.5}
+                    text={`${Number(dist).toFixed(2)} km`}
+                    style={styles.helloWorldTextStyle}
+                  />
+                  {/* <ViroImage width={1} height={1} source={carrot} position={[0,-1.5,0]}/> */}
+                  <ViroButton
+                    width={1}
+                    height={0.5}
+                    source={carrot}
+                    position={[0, -1.5, 0]}
+                    onClick={() => {
+                      console.log('CLICKCKCKCKCKK');
+                    }}
+                  />
+                </ViroFlexView>
+              </ViroNode>
+            );
+          })}
+          {/* <ViroNode scale={[1, 1, 1]} position={[1, 0, -1]}>
+            <ViroFlexView
+              style={{alignItems: 'center', justifyContent: 'center'}}>
+              <ViroText
+                width={4}
+                height={0.5}
+                text={'Le Louvre'}
+                style={styles.helloWorldTextStyle}
+              />
+              <ViroText
+                width={4}
+                height={0.5}
+                text={'by 4aas_h'}
+                style={styles.helloWorldTextStyle}
+              />
+              <ViroButton
+                width={1}
+                height={0.5}
+                source={carrot}
+                position={[0, -1.5, -2]}
+                onClick={() => {
+                  console.log('CLICKCKCKCKCKK');
+                }}
+              />
+            </ViroFlexView>
+          </ViroNode> */}
+        </>
+      )}
     </ViroARScene>
   );
 };
