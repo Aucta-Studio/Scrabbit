@@ -256,9 +256,9 @@ const HelloWorldSceneAR = () => {
                   {/* <ViroImage width={1} height={1} source={carrot} position={[0,-1.5,0]}/> */}
                   <ViroButton
                     width={1}
-                    height={0.5}
+                    height={0.6}
                     source={carrot}
-                    position={[0, -1.5, 0]}
+                    position={[0, 1, 0]}
                     onClick={() => {
                       console.log('CLICKCKCKCKCKK');
                     }}
