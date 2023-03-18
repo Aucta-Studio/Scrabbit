@@ -22,6 +22,8 @@ import {
   orderBy,
   doc,
   getDoc,
+  updateDoc,
+  arrayUnion
 } from 'firebase/firestore';
 import {myFireBase, auth, db} from './fireBaseConfig';
 import {
@@ -110,12 +112,15 @@ const HelloWorldSceneAR = () => {
     temp.forEach(async docp => {
       // console.log(doc.id, '=>', doc.data());
       const user = await getDoc(doc(db, 'Profiles', `${docp.data().author}`));
-      array.push({
-        id: docp.id,
-        distance: distanceBetweenPoints(location, docp.data().location),
-        username: user.data().UserName,
-        ...docp.data(),
-      });
+      const dist = distanceBetweenPoints(location, docp.data().location);
+      if (dist < 1) {
+        array.push({
+          id: docp.id,
+          distance: dist,
+          username: user.data().UserName,
+          ...docp.data(),
+        });
+      }
     });
     console.log(array);
     setPosts(array);
@@ -194,13 +199,22 @@ const HelloWorldSceneAR = () => {
     location && idList && !posts && getPosts(idList);
   }
 
-  function handleCollect(docID, author, currList){
-    if(uid == author){
+  async function handleCollect(docID, author) {
+    const post = doc(db, 'Posts', docID);
+    const temp = await getDoc(post);
+    if (uid == author) {
       Alert.alert('You are the author of this node');
-    }
-    else 
-    if(currList.includes(uid)){
+    } else
+    if (temp.data().Collected.includes(uid)) {
       Alert.alert('You have already collected this node');
+    } else {
+      await updateDoc(post, {
+        Collected: arrayUnion(uid),
+      })
+        .then(Alert.alert('Successfully collected this node'))
+        .catch(error => {
+          Alert.alert('Failed to collect this node');
+        });
     }
   }
 
@@ -278,32 +292,6 @@ const HelloWorldSceneAR = () => {
               </ViroNode>
             );
           })}
-          {/* <ViroNode scale={[1, 1, 1]} position={[1, 0, -1]}>
-            <ViroFlexView
-              style={{alignItems: 'center', justifyContent: 'center'}}>
-              <ViroText
-                width={4}
-                height={0.5}
-                text={'Le Louvre'}
-                style={styles.helloWorldTextStyle}
-              />
-              <ViroText
-                width={4}
-                height={0.5}
-                text={'by 4aas_h'}
-                style={styles.helloWorldTextStyle}
-              />
-              <ViroButton
-                width={1}
-                height={0.5}
-                source={carrot}
-                position={[0, -1.5, -2]}
-                onClick={() => {
-                  console.log('CLICKCKCKCKCKK');
-                }}
-              />
-            </ViroFlexView>
-          </ViroNode> */}
         </>
       )}
     </ViroARScene>
