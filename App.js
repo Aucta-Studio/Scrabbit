@@ -23,7 +23,7 @@ import {
   doc,
   getDoc,
   updateDoc,
-  arrayUnion
+  arrayUnion,
 } from 'firebase/firestore';
 import {myFireBase, auth, db} from './fireBaseConfig';
 import {
@@ -113,7 +113,7 @@ const HelloWorldSceneAR = () => {
       // console.log(doc.id, '=>', doc.data());
       const user = await getDoc(doc(db, 'Profiles', `${docp.data().author}`));
       const dist = distanceBetweenPoints(location, docp.data().location);
-      if (dist < 1) {
+      if (dist < 0.5) {
         array.push({
           id: docp.id,
           distance: dist,
@@ -142,7 +142,7 @@ const HelloWorldSceneAR = () => {
       setHeading(heading);
       // console.log(heading);
     };
-    CompassHeading.start(3, headingSuccess);
+    CompassHeading.start(50, headingSuccess);
   };
 
   // https://github.com/ViroCommunity/geoar/blob/master/App.js#L124
@@ -173,17 +173,17 @@ const HelloWorldSceneAR = () => {
 
   // Alert.alert(`Hello ${firstName}`, `You will be Logged in shortly`);
 
-  useEffect(() => {
+  useEffect(async () => {
     Alert.alert(`Hello ${firstName}`, `You will be Logged in shortly`);
     getLocation();
     getHeading();
-    signInWithEmailAndPassword(auth, loginEmail, loginPass)
-      .then(userCredential => {
+    await signInWithEmailAndPassword(auth, loginEmail, loginPass)
+      .then(async userCredential => {
         const user = userCredential.user.uid;
         console.log('Logged in');
         // console.log(user);
         setuid(user);
-        getList(user);
+        await getList(user);
       })
       .catch(error => {
         Alert.alert('Unsuccessful Login');
@@ -204,8 +204,7 @@ const HelloWorldSceneAR = () => {
     const temp = await getDoc(post);
     if (uid == author) {
       Alert.alert('You are the author of this node');
-    } else
-    if (temp.data().Collected.includes(uid)) {
+    } else if (temp.data().Collected.includes(uid)) {
       Alert.alert('You have already collected this node');
     } else {
       await updateDoc(post, {
@@ -256,7 +255,7 @@ const HelloWorldSceneAR = () => {
               <ViroNode
                 key={post.id}
                 scale={[scale, scale, scale]}
-                position={[coords.x, 0, coords.z]}>
+                position={[coords.x/2, 0, coords.z/2]}>
                 <ViroFlexView
                   style={{alignItems: 'center', justifyContent: 'center'}}>
                   <ViroText
@@ -284,7 +283,6 @@ const HelloWorldSceneAR = () => {
                     source={carrot}
                     position={[0, 1, 0]}
                     onClick={() => {
-                      console.log('CLICKCKCKCKCKK');
                       handleCollect(post.id, post.author, post.Collected);
                     }}
                   />
@@ -301,6 +299,7 @@ const HelloWorldSceneAR = () => {
 export default () => {
   return (
     <ViroARSceneNavigator
+      worldAlignment={'GravityAndHeading'}
       autofocus={true}
       initialScene={{
         scene: HelloWorldSceneAR,
