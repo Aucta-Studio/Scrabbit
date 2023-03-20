@@ -11,6 +11,7 @@ import {
   Alert,
   Platform,
   ToastAndroid,
+  LogBox,
 } from 'react-native';
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {
@@ -42,6 +43,10 @@ import Geolocation from '@react-native-community/geolocation';
 import CompassHeading from 'react-native-compass-heading';
 import {useDocument} from 'react-firebase-hooks/firestore';
 
+LogBox.ignoreLogs([
+  "AsyncStorage has been extracted from react-native core and will be removed in a future release. It can now be installed and imported from '@react-native-async-storage/async-storage' instead of 'react-native'. See https://github.com/react-native-async-storage/async-storage",
+]);
+
 // reference https://github.com/ViroCommunity/geoar/blob/master/App.js#LL28C19-L28C19
 const distanceBetweenPoints = (p1, p2) => {
   console.log('POINT 1', p1);
@@ -62,6 +67,12 @@ const distanceBetweenPoints = (p1, p2) => {
   var d = R * c;
   console.log('DISTANCE', d);
   return d;
+};
+const getRotation = (x, z) => {
+  let angle = (Math.atan2(x, z) * 180) / Math.PI;
+  angle = (angle < 0) ? angle + 360 : angle;
+  console.log('ANGLE', angle);
+  return angle;
 };
 // From: https://gist.github.com/scaraveos/5409402
 const latLongToMerc = (latDeg, longDeg) => {
@@ -110,13 +121,22 @@ const HelloWorldSceneAR = () => {
     const array = [];
     const temp = await getDocs(qp);
     temp.forEach(async docp => {
-      // console.log(doc.id, '=>', doc.data());
+      // console.log(docp.id, '=>', docp.data().title);
       const user = await getDoc(doc(db, 'Profiles', `${docp.data().author}`));
       const dist = distanceBetweenPoints(location, docp.data().location);
-      if (dist < 0.5) {
+      const coords = transformGpsToAR(
+        docp.data().location.latitude,
+        docp.data().location.longitude,
+      );
+      const sc = Math.abs(Math.round(coords.z / 15));
+      const rot = getRotation(coords.x, coords.z);
+      if (dist < 1) {
         array.push({
           id: docp.id,
           distance: dist,
+          coordinates: coords,
+          scale: sc,
+          rotation: rot,
           username: user.data().UserName,
           ...docp.data(),
         });
@@ -165,9 +185,10 @@ const HelloWorldSceneAR = () => {
         objDeltaX * Math.cos(angleRadian) - objDeltaY * Math.sin(angleRadian);
       let newObjY =
         objDeltaX * Math.sin(angleRadian) + objDeltaY * Math.cos(angleRadian);
+      console.log('x: ', newObjX, 'z: ', newObjY);
       return {x: newObjX, z: -newObjY};
     }
-
+    console.log('x: ', objDeltaX, 'z: ', objDeltaY);
     return {x: objDeltaX, z: -objDeltaY};
   };
 
@@ -242,20 +263,20 @@ const HelloWorldSceneAR = () => {
             text={text}
             scale={[0.5, 0.5, 0.5]}
             position={[0, 0, -1]}
+            // rotation={[0, 30, 0]}
             style={styles.helloWorldTextStyle}
           />
           {posts?.map(post => {
-            const coords = transformGpsToAR(
-              post.location.latitude,
-              post.location.longitude,
-            );
-            const scale = Math.abs(Math.round(coords.z / 15));
+            const coords = post.coordinates;
+            const scale = post.scale;
             const dist = post.distance;
+            const rotation = post.rotation;
             return (
               <ViroNode
                 key={post.id}
                 scale={[scale, scale, scale]}
-                position={[coords.x/2, 0, coords.z/2]}>
+                position={[coords.x, 0, coords.z]}
+                rotation={[0, 0, 0]}>
                 <ViroFlexView
                   style={{alignItems: 'center', justifyContent: 'center'}}>
                   <ViroText
