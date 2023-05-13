@@ -93,9 +93,9 @@ const HelloWorldSceneAR = () => {
   const [heading, setHeading] = useState(null);
   const [ready, setReady] = useState(false);
   // const [value, loading, error] = useDocument(doc(db, "Profiles", `${uid}`));
-  const loginEmail = 'a.abdelfattah2004@gmail.com';
-  const firstName = 'Ahmed';
-  const loginPass = 'Temp123';
+  const loginEmail = '';
+  const firstName = '';
+  const loginPass = '';
   const relations = collection(db, 'Relations');
   const PostStore = collection(db, 'Posts');
 
