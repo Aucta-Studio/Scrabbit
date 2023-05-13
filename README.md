@@ -16,3 +16,4 @@ Scrabbit is an augmented reality scrapbooking platform that allows users to uplo
 3. Enjoy the experience
 
 ##### 2. Walkthrough
+<img src="https://github.com/Aucta-Studio/Scrabbit/assets/90821062/0e73805d-61ac-4fff-9765-dff30c8eed86" alt="" height="500">
